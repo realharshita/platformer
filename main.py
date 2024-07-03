@@ -26,6 +26,28 @@ jumping = False
 jump_count = 10
 gravity = 0.5
 
+character_speed = 5
+jump_height = 10
+
+def draw_grid():
+    for x in range(0, SCREEN_WIDTH, 20):
+        for y in range(0, SCREEN_HEIGHT, 20):
+            rect = pygame.Rect(x, y, 20, 20)
+            pygame.draw.rect(screen, BLACK, rect, 1)
+
+def draw_text(text, x, y, font_size=30):
+    font = pygame.font.SysFont('Arial', font_size)
+    label = font.render(text, True, BLACK)
+    screen.blit(label, (x, y))
+
+def constrain_character():
+    if character_rect.left < 0:
+        character_rect.left = 0
+    if character_rect.right > SCREEN_WIDTH:
+        character_rect.right = SCREEN_WIDTH
+    if character_rect.bottom > SCREEN_HEIGHT - 20:
+        character_rect.bottom = SCREEN_HEIGHT - 20
+
 running = True
 while running:
     for event in pygame.event.get():
@@ -37,22 +59,16 @@ while running:
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LEFT]:
-        character_rect.x -= 5
+        character_rect.x -= character_speed
     if keys[pygame.K_RIGHT]:
-        character_rect.x += 5
+        character_rect.x += character_speed
 
     if jumping:
-        character_rect.y -= jump_count * 2
-        jump_count -= gravity
-        if jump_count < 0:
-            gravity = -0.5
-        if jump_count < -10:
+        character_rect.y -= jump_height
+        jump_height -= gravity
+        if jump_height < -10:
             jumping = False
-            jump_count = 10
-            gravity = 0.5
-    else:
-        if character_rect.y < SCREEN_HEIGHT - character_rect.height - 20:
-            character_rect.y += jump_count
+            jump_height = 10
 
     screen.fill(WHITE)
     
@@ -60,6 +76,11 @@ while running:
     pygame.draw.rect(screen, platform_color, platform_rect)
     
     screen.blit(character_image, character_rect)
+
+    constrain_character()
+
+    draw_grid()
+    draw_text("Platformer Game", 10, 10)
 
     pygame.display.flip()
 
