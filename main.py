@@ -22,12 +22,18 @@ ground_color = (100, 100, 100)
 platform_rect = pygame.Rect(200, SCREEN_HEIGHT - 150, 150, 10)
 platform_color = (50, 50, 200)
 
+obstacle_rect = pygame.Rect(400, SCREEN_HEIGHT - 40, 20, 20)
+obstacle_color = (200, 50, 50)
+
 jumping = False
 jump_count = 10
 gravity = 0.5
 
 character_speed = 5
 jump_height = 10
+
+score = 0
+font_size = 30
 
 def draw_grid():
     for x in range(0, SCREEN_WIDTH, 20):
@@ -47,6 +53,25 @@ def constrain_character():
         character_rect.right = SCREEN_WIDTH
     if character_rect.bottom > SCREEN_HEIGHT - 20:
         character_rect.bottom = SCREEN_HEIGHT - 20
+
+def check_collisions():
+    global score
+    if character_rect.colliderect(ground_rect):
+        character_rect.bottom = ground_rect.top
+    if character_rect.colliderect(platform_rect):
+        character_rect.bottom = platform_rect.top
+    if character_rect.colliderect(obstacle_rect):
+        draw_text("Game Over", SCREEN_WIDTH // 2 - 100, SCREEN_HEIGHT // 2)
+        pygame.display.flip()
+        pygame.time.wait(2000)
+        pygame.quit()
+        sys.exit()
+
+def increase_score():
+    global score
+    if character_rect.colliderect(platform_rect):
+        score += 1
+    draw_text(f"Score: {score}", 10, 40, font_size)
 
 running = True
 while running:
@@ -74,6 +99,7 @@ while running:
     
     pygame.draw.rect(screen, ground_color, ground_rect)
     pygame.draw.rect(screen, platform_color, platform_rect)
+    pygame.draw.rect(screen, obstacle_color, obstacle_rect)
     
     screen.blit(character_image, character_rect)
 
@@ -81,6 +107,10 @@ while running:
 
     draw_grid()
     draw_text("Platformer Game", 10, 10)
+
+    check_collisions()
+
+    increase_score()
 
     pygame.display.flip()
 
