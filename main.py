@@ -51,6 +51,12 @@ interactive_objects = [
 interactive_object_color = (200, 200, 50)
 interactive_object_effect = "shrink"
 
+advanced_interactive_objects = [
+    pygame.Rect(150, SCREEN_HEIGHT - 250, 40, 40)
+]
+advanced_interactive_object_color = (150, 150, 250)
+advanced_interactive_object_effect = "super_jump"
+
 collectibles = [
     pygame.Rect(250, SCREEN_HEIGHT - 180, 20, 20),
     pygame.Rect(450, SCREEN_HEIGHT - 330, 20, 20),
@@ -129,6 +135,12 @@ def check_collisions():
             if interactive_object_effect == "shrink":
                 character_rect.inflate_ip(-10, -10)
             interactive_objects.remove(interactive_object)
+    for advanced_interactive_object in advanced_interactive_objects:
+        if character_rect.colliderect(advanced_interactive_object):
+            if advanced_interactive_object_effect == "super_jump":
+                jump_height += 5
+                max_jump_height += 5
+            advanced_interactive_objects.remove(advanced_interactive_object)
     for collectible_rect in collectibles:
         if character_rect.colliderect(collectible_rect):
             score += 5
@@ -161,6 +173,10 @@ def draw_interactive_objects():
     for interactive_object in interactive_objects:
         pygame.draw.rect(screen, interactive_object_color, interactive_object)
 
+def draw_advanced_interactive_objects():
+    for advanced_interactive_object in advanced_interactive_objects:
+        pygame.draw.rect(screen, advanced_interactive_object_color, advanced_interactive_object)
+
 def draw_collectibles():
     for collectible_rect in collectibles:
         pygame.draw.rect(screen, collectible_color, collectible_rect)
@@ -181,7 +197,7 @@ def move_moving_obstacles():
             moving_obstacle_speed *= -1
 
 def setup_level(level):
-    global platforms, obstacles, moving_obstacles, interactive_objects, collectibles, power_ups
+    global platforms, obstacles, moving_obstacles, interactive_objects, collectibles, power_ups, advanced_interactive_objects
     if level == 1:
         platforms = [
             pygame.Rect(200, SCREEN_HEIGHT - 150, 150, 10),
@@ -200,6 +216,9 @@ def setup_level(level):
         interactive_objects = [
             pygame.Rect(600, SCREEN_HEIGHT - 500, 30, 30)
         ]
+        advanced_interactive_objects = [
+            pygame.Rect(150, SCREEN_HEIGHT - 250, 40, 40)
+        ]
         collectibles = [
             pygame.Rect(250, SCREEN_HEIGHT - 180, 20, 20),
             pygame.Rect(450, SCREEN_HEIGHT - 330, 20, 20),
@@ -215,24 +234,27 @@ def setup_level(level):
             pygame.Rect(650, SCREEN_HEIGHT - 500, 150, 10)
         ]
         obstacles = [
-            pygame.Rect(350, SCREEN_HEIGHT - 80, 20, 20),
-            pygame.Rect(550, SCREEN_HEIGHT - 240, 20, 20),
-            pygame.Rect(750, SCREEN_HEIGHT - 400, 20, 20)
+            pygame.Rect(300, SCREEN_HEIGHT - 100, 20, 20),
+            pygame.Rect(500, SCREEN_HEIGHT - 260, 20, 20),
+            pygame.Rect(700, SCREEN_HEIGHT - 420, 20, 20)
         ]
         moving_obstacles = [
-            pygame.Rect(400, SCREEN_HEIGHT - 100, 20, 20),
-            pygame.Rect(600, SCREEN_HEIGHT - 260, 20, 20)
+            pygame.Rect(450, SCREEN_HEIGHT - 120, 20, 20),
+            pygame.Rect(650, SCREEN_HEIGHT - 280, 20, 20)
         ]
         interactive_objects = [
-            pygame.Rect(700, SCREEN_HEIGHT - 500, 30, 30)
+            pygame.Rect(800, SCREEN_HEIGHT - 550, 30, 30)
+        ]
+        advanced_interactive_objects = [
+            pygame.Rect(200, SCREEN_HEIGHT - 250, 40, 40)
         ]
         collectibles = [
-            pygame.Rect(300, SCREEN_HEIGHT - 230, 20, 20),
-            pygame.Rect(500, SCREEN_HEIGHT - 380, 20, 20),
-            pygame.Rect(700, SCREEN_HEIGHT - 530, 20, 20)
+            pygame.Rect(350, SCREEN_HEIGHT - 280, 20, 20),
+            pygame.Rect(550, SCREEN_HEIGHT - 430, 20, 20),
+            pygame.Rect(750, SCREEN_HEIGHT - 580, 20, 20)
         ]
         power_ups = [
-            pygame.Rect(150, SCREEN_HEIGHT - 450, 30, 30)
+            pygame.Rect(200, SCREEN_HEIGHT - 500, 30, 30)
         ]
     elif level == 3:
         platforms = [
@@ -251,6 +273,112 @@ def setup_level(level):
         ]
         interactive_objects = [
             pygame.Rect(800, SCREEN_HEIGHT - 550, 30, 30)
+        ]
+        advanced_interactive_objects = [
+            pygame.Rect(300, SCREEN_HEIGHT - 250, 40, 40)
+        ]
+        collectibles = [
+            pygame.Rect(350, SCREEN_HEIGHT - 280, 20, 20),
+            pygame.Rect(550, SCREEN_HEIGHT - 430, 20, 20),
+            pygame.Rect(750, SCREEN_HEIGHT - 580, 20, 20)
+        ]
+        power_ups = [
+            pygame.Rect(250, SCREEN_HEIGHT - 500, 30, 30)
+        ]
+
+def move_platform():
+    global moving_platform_speed
+    moving_platform.x += moving_platform_speed
+    if moving_platform.left <= 0 or moving_platform.right >= SCREEN_WIDTH:
+        moving_platform_speed *= -1
+
+def move_moving_obstacles():
+    global moving_obstacle_speed
+    for moving_obstacle in moving_obstacles:
+        moving_obstacle.y += moving_obstacle_speed
+        if moving_obstacle.top <= 0 or moving_obstacle.bottom >= SCREEN_HEIGHT:
+            moving_obstacle_speed *= -1
+
+def setup_level(level):
+    global platforms, obstacles, moving_obstacles, interactive_objects, collectibles, power_ups, advanced_interactive_objects
+    if level == 1:
+        platforms = [
+            pygame.Rect(200, SCREEN_HEIGHT - 150, 150, 10),
+            pygame.Rect(400, SCREEN_HEIGHT - 300, 150, 10),
+            pygame.Rect(600, SCREEN_HEIGHT - 450, 150, 10)
+        ]
+        obstacles = [
+            pygame.Rect(300, SCREEN_HEIGHT - 60, 20, 20),
+            pygame.Rect(500, SCREEN_HEIGHT - 220, 20, 20),
+            pygame.Rect(700, SCREEN_HEIGHT - 380, 20, 20)
+        ]
+        moving_obstacles = [
+            pygame.Rect(350, SCREEN_HEIGHT - 100, 20, 20),
+            pygame.Rect(550, SCREEN_HEIGHT - 260, 20, 20)
+        ]
+        interactive_objects = [
+            pygame.Rect(600, SCREEN_HEIGHT - 500, 30, 30)
+        ]
+        advanced_interactive_objects = [
+            pygame.Rect(150, SCREEN_HEIGHT - 250, 40, 40)
+        ]
+        collectibles = [
+            pygame.Rect(250, SCREEN_HEIGHT - 180, 20, 20),
+            pygame.Rect(450, SCREEN_HEIGHT - 330, 20, 20),
+            pygame.Rect(650, SCREEN_HEIGHT - 480, 20, 20)
+        ]
+        power_ups = [
+            pygame.Rect(100, SCREEN_HEIGHT - 400, 30, 30)
+        ]
+    elif level == 2:
+        platforms = [
+            pygame.Rect(250, SCREEN_HEIGHT - 200, 150, 10),
+            pygame.Rect(450, SCREEN_HEIGHT - 350, 150, 10),
+            pygame.Rect(650, SCREEN_HEIGHT - 500, 150, 10)
+        ]
+        obstacles = [
+            pygame.Rect(300, SCREEN_HEIGHT - 100, 20, 20),
+            pygame.Rect(500, SCREEN_HEIGHT - 250, 20, 20),
+            pygame.Rect(700, SCREEN_HEIGHT - 400, 20, 20)
+        ]
+        moving_obstacles = [
+            pygame.Rect(350, SCREEN_HEIGHT - 150, 20, 20),
+            pygame.Rect(550, SCREEN_HEIGHT - 300, 20, 20)
+        ]
+        interactive_objects = [
+            pygame.Rect(400, SCREEN_HEIGHT - 450, 30, 30)
+        ]
+        advanced_interactive_objects = [
+            pygame.Rect(200, SCREEN_HEIGHT - 250, 40, 40)
+        ]
+        collectibles = [
+            pygame.Rect(300, SCREEN_HEIGHT - 180, 20, 20),
+            pygame.Rect(500, SCREEN_HEIGHT - 330, 20, 20),
+            pygame.Rect(700, SCREEN_HEIGHT - 480, 20, 20)
+        ]
+        power_ups = [
+            pygame.Rect(150, SCREEN_HEIGHT - 400, 30, 30)
+        ]
+    elif level == 3:
+        platforms = [
+            pygame.Rect(300, SCREEN_HEIGHT - 250, 150, 10),
+            pygame.Rect(500, SCREEN_HEIGHT - 400, 150, 10),
+            pygame.Rect(700, SCREEN_HEIGHT - 550, 150, 10)
+        ]
+        obstacles = [
+            pygame.Rect(400, SCREEN_HEIGHT - 100, 20, 20),
+            pygame.Rect(600, SCREEN_HEIGHT - 260, 20, 20),
+            pygame.Rect(800, SCREEN_HEIGHT - 420, 20, 20)
+        ]
+        moving_obstacles = [
+            pygame.Rect(450, SCREEN_HEIGHT - 120, 20, 20),
+            pygame.Rect(650, SCREEN_HEIGHT - 280, 20, 20)
+        ]
+        interactive_objects = [
+            pygame.Rect(800, SCREEN_HEIGHT - 550, 30, 30)
+        ]
+        advanced_interactive_objects = [
+            pygame.Rect(300, SCREEN_HEIGHT - 250, 40, 40)
         ]
         collectibles = [
             pygame.Rect(350, SCREEN_HEIGHT - 280, 20, 20),
@@ -296,6 +424,7 @@ while True:
     draw_obstacles()
     draw_moving_obstacles()
     draw_interactive_objects()
+    draw_advanced_interactive_objects()
     draw_collectibles()
     draw_power_ups()
 
@@ -304,7 +433,7 @@ while True:
     constrain_character()
 
     draw_grid()
-    draw_text("Platformer Game", 10, 10)
+    draw_text(f"Platformer Game - Level {level}", 10, 10)
 
     check_collisions()
 
