@@ -12,6 +12,8 @@ BLACK = (0, 0, 0)
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Platformer Game")
 
+background_image = pygame.image.load('background.png')
+
 character_image = pygame.image.load('character.png')
 character_rect = character_image.get_rect()
 character_rect.center = (100, SCREEN_HEIGHT - 100)
@@ -40,7 +42,9 @@ obstacle_color = (200, 50, 50)
 collectibles = [
     pygame.Rect(250, SCREEN_HEIGHT - 180, 20, 20),
     pygame.Rect(450, SCREEN_HEIGHT - 330, 20, 20),
-    pygame.Rect(650, SCREEN_HEIGHT - 480, 20, 20)
+    pygame.Rect(650, SCREEN_HEIGHT - 480, 20, 20),
+    pygame.Rect(350, SCREEN_HEIGHT - 260, 20, 20),
+    pygame.Rect(550, SCREEN_HEIGHT - 410, 20, 20)
 ]
 collectible_color = (50, 200, 200)
 
@@ -50,8 +54,11 @@ gravity = 0.5
 
 character_speed = 5
 jump_height = 10
+max_jump_height = 15
+min_jump_height = 5
 
 score = 0
+level = 1
 font_size = 30
 
 def draw_grid():
@@ -75,6 +82,7 @@ def constrain_character():
 
 def check_collisions():
     global score
+    global level
     if character_rect.colliderect(ground_rect):
         character_rect.bottom = ground_rect.top
     for platform_rect in platforms:
@@ -95,6 +103,9 @@ def check_collisions():
         if character_rect.colliderect(collectible_rect):
             score += 5
             collectibles.remove(collectible_rect)
+    if not collectibles:
+        level += 1
+        setup_level(level)
 
 def increase_score():
     global score
@@ -113,6 +124,43 @@ def move_platform():
     if moving_platform.left <= 0 or moving_platform.right >= SCREEN_WIDTH:
         moving_platform_speed *= -1
 
+def setup_level(level):
+    global platforms, obstacles, collectibles
+    if level == 1:
+        platforms = [
+            pygame.Rect(200, SCREEN_HEIGHT - 150, 150, 10),
+            pygame.Rect(400, SCREEN_HEIGHT - 300, 150, 10),
+            pygame.Rect(600, SCREEN_HEIGHT - 450, 150, 10)
+        ]
+        obstacles = [
+            pygame.Rect(300, SCREEN_HEIGHT - 60, 20, 20),
+            pygame.Rect(500, SCREEN_HEIGHT - 220, 20, 20),
+            pygame.Rect(700, SCREEN_HEIGHT - 380, 20, 20)
+        ]
+        collectibles = [
+            pygame.Rect(250, SCREEN_HEIGHT - 180, 20, 20),
+            pygame.Rect(450, SCREEN_HEIGHT - 330, 20, 20),
+            pygame.Rect(650, SCREEN_HEIGHT - 480, 20, 20)
+        ]
+    elif level == 2:
+        platforms = [
+            pygame.Rect(250, SCREEN_HEIGHT - 200, 150, 10),
+            pygame.Rect(450, SCREEN_HEIGHT - 350, 150, 10),
+            pygame.Rect(650, SCREEN_HEIGHT - 500, 150, 10)
+        ]
+        obstacles = [
+            pygame.Rect(350, SCREEN_HEIGHT - 80, 20, 20),
+            pygame.Rect(550, SCREEN_HEIGHT - 240, 20, 20),
+            pygame.Rect(750, SCREEN_HEIGHT - 400, 20, 20)
+        ]
+        collectibles = [
+            pygame.Rect(300, SCREEN_HEIGHT - 230, 20, 20),
+            pygame.Rect(500, SCREEN_HEIGHT - 380, 20, 20),
+            pygame.Rect(700, SCREEN_HEIGHT - 530, 20, 20)
+        ]
+
+setup_level(level)
+
 running = True
 while running:
     for event in pygame.event.get():
@@ -121,6 +169,9 @@ while running:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE and not jumping:
                 jumping = True
+                jump_height = max_jump_height
+            elif event.key == pygame.K_DOWN and jumping:
+                jump_height = min_jump_height
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LEFT]:
@@ -131,13 +182,14 @@ while running:
     if jumping:
         character_rect.y -= jump_height
         jump_height -= gravity
-        if jump_height < -10:
+        if jump_height < -max_jump_height:
             jumping = False
-            jump_height = 10
+            jump_height = max_jump_height
 
     move_platform()
 
     screen.fill(WHITE)
+    screen.blit(background_image, (0, 0))
     
     pygame.draw.rect(screen, ground_color, ground_rect)
     for platform_rect in platforms:
