@@ -60,6 +60,12 @@ collectibles = [
 ]
 collectible_color = (50, 200, 200)
 
+power_ups = [
+    pygame.Rect(100, SCREEN_HEIGHT - 400, 30, 30)
+]
+power_up_color = (50, 200, 50)
+power_up_effect = "speed"
+
 jumping = False
 jump_count = 10
 gravity = 0.5
@@ -93,7 +99,7 @@ def constrain_character():
         character_rect.bottom = SCREEN_HEIGHT - 20
 
 def check_collisions():
-    global score
+    global score, character_speed, jump_height, max_jump_height
     global level
     if character_rect.colliderect(ground_rect):
         character_rect.bottom = ground_rect.top
@@ -127,6 +133,14 @@ def check_collisions():
         if character_rect.colliderect(collectible_rect):
             score += 5
             collectibles.remove(collectible_rect)
+    for power_up in power_ups:
+        if character_rect.colliderect(power_up):
+            if power_up_effect == "speed":
+                character_speed += 2
+            elif power_up_effect == "high_jump":
+                max_jump_height += 5
+                jump_height += 5
+            power_ups.remove(power_up)
     if not collectibles:
         level += 1
         setup_level(level)
@@ -151,6 +165,10 @@ def draw_collectibles():
     for collectible_rect in collectibles:
         pygame.draw.rect(screen, collectible_color, collectible_rect)
 
+def draw_power_ups():
+    for power_up in power_ups:
+        pygame.draw.rect(screen, power_up_color, power_up)
+
 def move_platform():
     moving_platform.x += moving_platform_speed
     if moving_platform.left <= 0 or moving_platform.right >= SCREEN_WIDTH:
@@ -163,7 +181,7 @@ def move_moving_obstacles():
             moving_obstacle_speed *= -1
 
 def setup_level(level):
-    global platforms, obstacles, moving_obstacles, interactive_objects, collectibles
+    global platforms, obstacles, moving_obstacles, interactive_objects, collectibles, power_ups
     if level == 1:
         platforms = [
             pygame.Rect(200, SCREEN_HEIGHT - 150, 150, 10),
@@ -186,6 +204,9 @@ def setup_level(level):
             pygame.Rect(250, SCREEN_HEIGHT - 180, 20, 20),
             pygame.Rect(450, SCREEN_HEIGHT - 330, 20, 20),
             pygame.Rect(650, SCREEN_HEIGHT - 480, 20, 20)
+        ]
+        power_ups = [
+            pygame.Rect(100, SCREEN_HEIGHT - 400, 30, 30)
         ]
     elif level == 2:
         platforms = [
@@ -210,21 +231,45 @@ def setup_level(level):
             pygame.Rect(500, SCREEN_HEIGHT - 380, 20, 20),
             pygame.Rect(700, SCREEN_HEIGHT - 530, 20, 20)
         ]
-    # Additional levels can be added similarly
+        power_ups = [
+            pygame.Rect(150, SCREEN_HEIGHT - 450, 30, 30)
+        ]
+    elif level == 3:
+        platforms = [
+            pygame.Rect(300, SCREEN_HEIGHT - 250, 150, 10),
+            pygame.Rect(500, SCREEN_HEIGHT - 400, 150, 10),
+            pygame.Rect(700, SCREEN_HEIGHT - 550, 150, 10)
+        ]
+        obstacles = [
+            pygame.Rect(400, SCREEN_HEIGHT - 100, 20, 20),
+            pygame.Rect(600, SCREEN_HEIGHT - 260, 20, 20),
+            pygame.Rect(800, SCREEN_HEIGHT - 420, 20, 20)
+        ]
+        moving_obstacles = [
+            pygame.Rect(450, SCREEN_HEIGHT - 120, 20, 20),
+            pygame.Rect(650, SCREEN_HEIGHT - 280, 20, 20)
+        ]
+        interactive_objects = [
+            pygame.Rect(800, SCREEN_HEIGHT - 550, 30, 30)
+        ]
+        collectibles = [
+            pygame.Rect(350, SCREEN_HEIGHT - 280, 20, 20),
+            pygame.Rect(550, SCREEN_HEIGHT - 430, 20, 20),
+            pygame.Rect(750, SCREEN_HEIGHT - 580, 20, 20)
+        ]
+        power_ups = [
+            pygame.Rect(200, SCREEN_HEIGHT - 500, 30, 30)
+        ]
 
-setup_level(level)
-
-running = True
-while running:
+while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            running = False
-        elif event.type == pygame.KEYDOWN:
+            pygame.quit()
+            sys.exit()
+        if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE and not jumping:
                 jumping = True
-                jump_height = max_jump_height
-            elif event.key == pygame.K_DOWN and jumping:
-                jump_height = min_jump_height
+                jump_count = max_jump_height
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_LEFT]:
@@ -233,18 +278,17 @@ while running:
         character_rect.x += character_speed
 
     if jumping:
-        character_rect.y -= jump_height
-        jump_height -= gravity
-        if jump_height < -max_jump_height:
+        character_rect.y -= jump_count
+        jump_count -= gravity
+        if jump_count < -min_jump_height:
             jumping = False
-            jump_height = max_jump_height
 
     move_platform()
     move_moving_obstacles()
 
     screen.fill(WHITE)
     screen.blit(background_image, (0, 0))
-    
+
     pygame.draw.rect(screen, ground_color, ground_rect)
     for platform_rect in platforms:
         pygame.draw.rect(screen, platform_color, platform_rect)
@@ -253,7 +297,8 @@ while running:
     draw_moving_obstacles()
     draw_interactive_objects()
     draw_collectibles()
-    
+    draw_power_ups()
+
     screen.blit(character_image, character_rect)
 
     constrain_character()
