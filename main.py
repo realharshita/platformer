@@ -414,7 +414,6 @@ while True:
         if character_rect.bottom < SCREEN_HEIGHT - 20:
             character_rect.y += gravity
 
-
     move_platform()
     move_moving_obstacles()
 
