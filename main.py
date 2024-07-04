@@ -410,6 +410,10 @@ while True:
         jump_count -= gravity
         if jump_count < -min_jump_height:
             jumping = False
+    if not jumping:
+        if character_rect.bottom < SCREEN_HEIGHT - 20:
+            character_rect.y += gravity
+
 
     move_platform()
     move_moving_obstacles()
